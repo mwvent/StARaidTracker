@@ -2,7 +2,12 @@
 
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
-require("phplib/raiddata.php");
+
+define('APPROOTDIR',dirname(__FILE__) . '/');
+define('APPLIBDIR',APPROOTDIR . 'lib/');
+define('APPDATADIR',APPROOTDIR . 'data/');
+
+require(APPLIBDIR . "raiddata.php");
 
 class RaidTrackerAPI {
 	var $returnData = [];
@@ -47,7 +52,7 @@ class RaidTrackerAPI {
 					$long = (float)$this->getStringParm("long");
 					$raidData->setBaseLocation( $lat, $long );
 				}
-				$this->returnData = $raidData->getMapData()->getGymsAsArray(); 
+				$this->returnData = $raidData->getPogoGyms()->getGymsAsArray(); 
 				break;
 			case "getraids" :
 				$raidData = new RaidData();

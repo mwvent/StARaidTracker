@@ -1,7 +1,6 @@
 <?php
-require("mapdata.php");
+require(APPLIBDIR . "pogogyms.php");
 
-// All info about a Pokemon Go Raid
 class PogoRaid {
 	private $startTime;
 	private $pokemon = "???";
@@ -25,7 +24,7 @@ class PogoRaid {
 	}
 	
 	public function getGym() : PogoGym {
-		return $this->raidData->getMapData()->getGymByUID( $this->gymUID );
+		return $this->raidData->getPogoGyms()->getGymByUID( $this->gymUID );
 	}
 	
 	public function setPokemon( string $newPokemon ) {
@@ -62,18 +61,18 @@ class PogoRaid {
 	}
 }
 
-// Handles database access to raid information and linking to mapdata
+// Handles database access to raid information and linking to pogoGyms
 class RaidData {
 	private $db;
-	private $mapData;
+	private $pogoGyms;
 	private $activeRaids = [];
 	private $useBaseLocation = false;
 	private $fromLat;
 	private $fromLong;
 	
 	function __construct() {
-		$this->db = new SQLite3('db/raiddb.db');
-		$this->mapData = new MapData();
+		$this->db = new SQLite3(APPDATADIR . 'rw/raiddb.db');
+		$this->pogoGyms = new PogoGyms();
 
 		// create a db table if not exists
 		$sql = "
@@ -112,7 +111,7 @@ class RaidData {
 		$this->useBaseLocation = true;
 		$this->fromLat = $lat;
 		$this->fromLong = $long;
-		$this->mapData->setBaseLocation($lat, $long);
+		$this->pogoGyms->setBaseLocation($lat, $long);
 	}
 	
 	// return base location info
@@ -179,7 +178,7 @@ class RaidData {
 		return $returnArray;
 	}
 	
-	public function getMapData() : MapData {
-		return $this->mapData;
+	public function getPogoGyms() : PogoGyms {
+		return $this->pogoGyms;
 	}
 }
