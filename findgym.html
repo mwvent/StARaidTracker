@@ -1,0 +1,212 @@
+<html>
+  <head>
+    <title>Find A Gym</title>
+    <meta content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script>
+		var hash = window.location.hash.substr(1);
+		
+		var urlParams;
+		function updateURLParms() {
+			var match,
+				pl     = /\+/g,  // Regex for replacing addition symbol with a space
+				search = /([^&=]+)=?([^&]*)/g,
+				decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+				query  = window.location.search.substring(1);
+
+			urlParams = {};
+			while (match = search.exec(query))
+			   urlParams[decode(match[1])] = decode(match[2]);
+		};
+		
+		function doSearch() {
+			$('#results-list').empty();
+			searchTxt = urlParams["q"];
+			
+			if( searchTxt === undefined ) {
+				return;
+			}
+			
+			$.getJSON(
+				"http://home.wattz.org.uk/StARaidTracker/api/", 
+				{
+					method: "findgymsbyname",
+					searchtext: searchTxt
+				}, 
+				function( data ) {
+					var items = [];
+					$.each( data.data, function( key, val ) {
+						href = "<a href='" + val.url + "' target='_blank'>" + val.name + "</a>";
+						// href = href + "<div class='copyurlbtn' value='" + val.url + "' target='_blank'>C</div>";
+						$('#results-list').append('<li class="searchresult">' + href + '</li>');
+					});
+				}
+			);
+		}
+		
+		function goPressed() {
+			var searchTxt = document.getElementById('searchbox-txt').value;
+			var newUrl = window.location.href.split('?')[0] + "?q=" + encodeURI(searchTxt);
+			window.history.pushState({},"", newUrl);
+			updateURLParms();
+			doSearch();
+		}
+		
+		$(document).ready(function() {
+			$( "#searchbox-area" ).submit(function( event ) {
+				goPressed();
+				event.preventDefault();
+			});
+			$( "#gobtn" ).click(function( event ) {
+				goPressed();
+				event.preventDefault();
+			});
+			$( ".copyurlbtn" ).click(function( event ) {
+				console.log(event);
+				// copyTextToClipboard('Jane');
+			});
+			$(window).bind('popstate', function(event) {
+				console.log(event);
+				updateURLParms();
+				goPressed();
+			});
+			updateURLParms();
+			if( urlParams["q"] === undefined ) {
+				return;
+			}
+			document.getElementById('searchbox-txt').value = urlParams["q"];
+			doSearch();
+		});
+	</script>
+    <style>
+		.btn {
+			background: #3498db;
+			background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+			background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+			background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+			background-image: -o-linear-gradient(top, #3498db, #2980b9);
+			background-image: linear-gradient(to bottom, #3498db, #2980b9);
+			-webkit-border-radius: 28;
+			-moz-border-radius: 28;
+			border-radius: 28px;
+			font-family: Arial;
+			color: #ffffff;
+			font-size: 20px;
+			padding: 10px 20px 10px 20px;
+			text-decoration: none;
+			top: 8px;
+			right: 28px;
+			width: 8%;
+			min-width: 8%;
+			max-width: 8%;
+			position: absolute;
+		}
+
+		.btn:hover {
+			background: #3cb0fd;
+			background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+			background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+			background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+			background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+			background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+			text-decoration: none;
+			width: 8%;
+			min-width: 8%;
+			max-width: 8%;
+		}
+		
+		.textinput {
+			background: #ffffff;
+			background-image: -webkit-linear-gradient(top, #ffffff, #dedede);
+			background-image: -moz-linear-gradient(top, #ffffff, #dedede);
+			background-image: -ms-linear-gradient(top, #ffffff, #dedede);
+			background-image: -o-linear-gradient(top, #ffffff, #dedede);
+			background-image: linear-gradient(to bottom, #ffffff, #dedede);
+			-webkit-border-radius: 28;
+			-moz-border-radius: 28;
+			border-radius: 28px;
+			font-family: Arial;
+			color: #000000;
+			font-size: 20px;
+			padding: 10px 20px 10px 20px;
+			text-decoration: none;
+			left: 0px;
+			top: 8px;
+			width: 70%;
+			min-width: 70%;
+			max-width: 70%;
+			position: absolute;
+		} 
+		
+		.searchresult {
+			background: #00ff1e;
+			background-image: -webkit-linear-gradient(top, #00ff1e, #07db9f);
+			background-image: -moz-linear-gradient(top, #00ff1e, #07db9f);
+			background-image: -ms-linear-gradient(top, #00ff1e, #07db9f);
+			background-image: -o-linear-gradient(top, #00ff1e, #07db9f);
+			background-image: linear-gradient(to bottom, #00ff1e, #07db9f);
+			-webkit-border-radius: 28;
+			-moz-border-radius: 28;
+			border-radius: 28px;
+			font-family: Arial;
+			color: #ffffff;
+			font-size: 20px;
+			padding: 10px 20px 10px 20px;
+			text-decoration: none;
+			left: 0px;
+			width: 80%;
+			min-width: 80%;
+			margin-bottom: 10px;
+		}
+
+		.searchresult:hover {
+			background: #3cb0fd;
+			background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+			background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+			background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+			background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+			background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+			text-decoration: none;
+		}
+		
+		.copyurlbtn {
+			background: #3498db;
+			background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+			background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+			background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+			background-image: -o-linear-gradient(top, #3498db, #2980b9);
+			background-image: linear-gradient(to bottom, #3498db, #2980b9);
+			-webkit-border-radius: 28;
+			-moz-border-radius: 28;
+			border-radius: 28px;
+			font-family: Arial;
+			color: #ffffff;
+			font-size: 20px;
+			padding: 10px 20px 10px 20px;
+			text-decoration: none;
+			right: 0px;
+			width: 8%;
+			min-width: 8%;
+			max-width: 8%;
+		}
+		
+		#results-area {
+			top: 60px;
+			position: absolute;
+			width: 100%;
+			min-width: 100%;
+		}
+    </style>
+  </head>
+  <body>
+	  <form id='searchbox-area'>
+		<input id='searchbox-txt' class='textinput'/>
+		<span id='gobtn' class='btn'>GO</span>
+	  </form>
+	  <div id='results-area'>
+		  <ul id='results-list'></ul>
+	  </div>
+	  
+  </body>
+</html>

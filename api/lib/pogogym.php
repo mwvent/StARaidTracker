@@ -34,6 +34,10 @@ class PogoGym {
 	public function getName( ) {
 		return $this->name;
 	}
+	
+	public function nameContains(string $searchFor) : bool {
+		return ! ( stripos( $this->name, $searchFor ) === false );
+	}
 
 	public function getUID( ) {
 		return $this->uid;

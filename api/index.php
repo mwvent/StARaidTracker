@@ -54,6 +54,15 @@ class RaidTrackerAPI {
 				}
 				$this->returnData = $raidData->getPogoGyms()->getGymsAsArray(); 
 				break;
+			case "findgymsbyname" :
+				$raidData = new RaidData();
+				if ( $this->hasParm("lat" ) and $this->hasParm("long") ) {
+					$lat = (float)$this->getStringParm("lat");
+					$long = (float)$this->getStringParm("long");
+					$raidData->setBaseLocation( $lat, $long );
+				}
+				$this->returnData = $raidData->getPogoGyms()->getGymsByName($this->getStringParm("searchtext"));
+				break;
 			case "getraids" :
 				$raidData = new RaidData();
 				if ( $this->hasParm("lat" ) and $this->hasParm("long") ) {

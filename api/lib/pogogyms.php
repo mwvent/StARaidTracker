@@ -42,7 +42,7 @@ class PogoGyms {
 	function __construct() {
 		$reader = new SpreadsheetReader(APPDATADIR . 'Gyms.ods');
 		// todo - read these values from row 0, error if not exist
-		$COLS = [ "name" => 0, "UID" => 3, "URL" => 1, "LAT" => 4, "LONG" =>5 ];
+		$COLS = [ "name" => 0, "UID" => 6, "URL" => 1, "LAT" => 7, "LONG" => 8 ];
 		foreach ($reader as $row) {
 			$newGym = new PogoGym($this);
 			$newGym->setName( $row[$COLS["name"]] );
@@ -111,6 +111,17 @@ class PogoGyms {
 			$nullGym->setName("Err cannot find gym with UID " . $UID);
 			return $nullGym;
 		}
+	}
+	
+	// Find Gyms By Name
+	public function getGymsByName(string $searchtxt) : array {
+		$returnArray = [];
+		foreach($this->getGyms() as $gym) {
+			if( $gym->nameContains( $searchtxt ) ) {
+				$returnArray[ $gym->getUID() ] = $gym->asArray();
+			}
+		}
+		return $returnArray;
 	}
 	
 	// Allow access to the Areas array
