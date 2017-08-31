@@ -1,12 +1,14 @@
 <html>
   <head>
-    <title>Find A Gym</title>
+    <title>St.Albans PoGo Gym Search</title>
     <meta content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script>
-		var hash = window.location.hash.substr(1);
-		
+		// create a global urlParmas and a function to fill it with
+		// an array of data from the current url querystring
+		// forgot to take to URL of the forum I lazily copied this from but
+		// did copy it
 		var urlParams;
 		function updateURLParms() {
 			var match,
@@ -20,6 +22,7 @@
 			   urlParams[decode(match[1])] = decode(match[2]);
 		};
 		
+		// attempt to fetch a search from the server - uses q from querystring as search input
 		function doSearch() {
 			$('#results-list').empty();
 			searchTxt = urlParams["q"];
@@ -28,23 +31,47 @@
 				return;
 			}
 			
-			$.getJSON(
-				"api/", 
-				{
+			$.getJSON( "api/", {
 					method: "findgymsbyname",
 					searchtext: searchTxt
 				}, 
 				function( data ) {
-					var items = [];
+					$('#results-list').empty();
+					// Check data.status exists
+					if( data.status === undefined ) {
+						$('#results-list').append("<font color='red'>Sorry, I could not talk to the server right now :-(</font>");
+						return;
+					}
+					// Check for an error returned					
+					if( data.status.haserror != 0 ) {
+						$('#results-list').append("<font color='red'>Sorry, Server Error Has Occured :-( - " + data.status.errtext + "</font>");
+						return;
+					}
+					// check data exists
+					if( data.data === undefined ) {
+						$('#results-list').append("<font color='red'>Sorry, Server Error Has Occured :-(</font>");
+						return;
+					}
+					// check results were found
+					if ( Object.keys(data.data).length === 0 ) {
+						$('#results-list').append("<font color='red'>Nothing found for " + urlParams["q"] + "</font>");
+						return;
+					}
+					// Make a list of results and add to page
 					$.each( data.data, function( key, val ) {
 						href = "<a href='" + val.url + "' target='_blank'>" + val.name + "</a>";
 						// href = href + "<div class='copyurlbtn' value='" + val.url + "' target='_blank'>C</div>";
 						$('#results-list').append('<li class="searchresult">' + href + '</li>');
 					});
 				}
-			);
+			).fail( function(jqXHR, textStatus, errorThrown) { 
+				$('#results-list').append("<font color='red'>Sorry, Could not communicate with server: " + textStatus + "</font>");
+			});
 		}
 		
+		// function for search button press of form subission event handling
+		// put contents of search text box into url - push a history state so
+		// user can go back then call search
 		function goPressed() {
 			var searchTxt = document.getElementById('searchbox-txt').value;
 			var newUrl = window.location.href.split('?')[0] + "?q=" + encodeURI(searchTxt);
@@ -53,7 +80,9 @@
 			doSearch();
 		}
 		
+		// jquery startup
 		$(document).ready(function() {
+			// handle form submission events and call goPressed()
 			$( "#searchbox-area" ).submit(function( event ) {
 				goPressed();
 				event.preventDefault();
@@ -62,15 +91,26 @@
 				goPressed();
 				event.preventDefault();
 			});
+			// maybe later? the hyperlinks are made unusable for copying map 
+			// url by the stylesheet for now this is defunct
 			$( ".copyurlbtn" ).click(function( event ) {
 				console.log(event);
 				// copyTextToClipboard('Jane');
 			});
+			// handle back button presses, update the textbox with the value of q in the query string
+			// and call doSearch - TODO could cache search results
 			$(window).bind('popstate', function(event) {
-				console.log(event);
 				updateURLParms();
-				goPressed();
+				if( urlParams["q"] === undefined ) {
+					document.getElementById('searchbox-txt').value = '';
+				} else {
+					document.getElementById('searchbox-txt').value = urlParams["q"];
+				}
+				doSearch();
 			});
+			
+			// finally for page load - update the value of the textbox with q from the query string
+			// if it has been supplied then perform a search straight away
 			updateURLParms();
 			if( urlParams["q"] === undefined ) {
 				return;
@@ -96,24 +136,11 @@
 			padding: 10px 20px 10px 20px;
 			text-decoration: none;
 			top: 8px;
-			right: 28px;
+			right: 18px;
 			width: 8%;
 			min-width: 8%;
 			max-width: 8%;
 			position: absolute;
-		}
-
-		.btn:hover {
-			background: #3cb0fd;
-			background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
-			text-decoration: none;
-			width: 8%;
-			min-width: 8%;
-			max-width: 8%;
 		}
 		
 		.textinput {
@@ -131,7 +158,7 @@
 			font-size: 20px;
 			padding: 10px 20px 10px 20px;
 			text-decoration: none;
-			left: 0px;
+			left: 18px;
 			top: 8px;
 			width: 70%;
 			min-width: 70%;
@@ -160,16 +187,7 @@
 			margin-bottom: 10px;
 		}
 
-		.searchresult:hover {
-			background: #3cb0fd;
-			background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-			background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
-			text-decoration: none;
-		}
-		
+
 		.copyurlbtn {
 			background: #3498db;
 			background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
