@@ -19,9 +19,11 @@ class PogoGym {
 		$this->uid = $newUID;
 	}
 
+/*
 	public function setURL( $newURL ) {
 		$this->url = $newURL;
 	}
+*/
 
 	public function setLat( $newLat ) {
 		$this->lat = $newLat;
@@ -46,7 +48,11 @@ class PogoGym {
 	}
 
 	public function getURL( ) {
-		return $this->url;
+		$urlparms = [ "placename=" . urlencode($this->getName()) ,
+					  "lat=" . urlencode($this->getLat()) ,
+					  "lng=" . urlencode($this->getLong())
+					];
+		return "maplink.php?" . implode( "&", $urlparms );
 	}
 
 	public function getLat( ) {

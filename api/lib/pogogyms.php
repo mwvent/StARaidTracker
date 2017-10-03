@@ -47,7 +47,7 @@ class PogoGyms {
 			$newGym = new PogoGym($this);
 			$newGym->setName( $row[$COLS["name"]] );
 			$newGym->setUID( $row[$COLS["UID"]] );
-			$newGym->setURL( $row[$COLS["URL"]] );
+			// $newGym->setURL( $row[$COLS["URL"]] );
 			$newGym->setLat( $row[$COLS["LAT"]] );
 			$newGym->setLong( $row[$COLS["LONG"]] );
 			$this->gyms[ $row[$COLS["UID"]] ] = $newGym;
