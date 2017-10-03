@@ -36,7 +36,9 @@ class PogoGym {
 	}
 	
 	public function nameContains(string $searchFor) : bool {
-		return ! ( stripos( $this->name, $searchFor ) === false );
+		$cmpHaystack = trim(preg_replace("/[^A-Za-z0-9 ]/", '', str_replace ( "&#039;" , "" , $this->name )));
+		$cmpNeedle = trim(preg_replace("/[^A-Za-z0-9 ]/", '', $searchFor));
+		return ! ( stripos( $cmpHaystack, $cmpNeedle ) === false );
 	}
 
 	public function getUID( ) {
