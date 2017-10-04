@@ -39,7 +39,7 @@ class PogoGym {
 	
 	public function nameContains(string $searchFor) : bool {
 		$cmpHaystack = trim(preg_replace("/[^A-Za-z0-9 ]/", '', str_replace ( "&#039;" , "" , $this->name )));
-		$cmpNeedle = trim(preg_replace("/[^A-Za-z0-9 ]/", '', $searchFor));
+		$cmpNeedle = trim(preg_replace("/[^A-Za-z0-9 ]/", '', str_replace ( "&#039;" , "" ,$searchFor) ));
 		return ! ( stripos( $cmpHaystack, $cmpNeedle ) === false );
 	}
 
@@ -48,9 +48,16 @@ class PogoGym {
 	}
 
 	public function getURL( ) {
-		$urlparms = [ "placename=" . urlencode($this->getName()) ,
-					  "lat=" . urlencode($this->getLat()) ,
-					  "lng=" . urlencode($this->getLong())
+		$urlparms = [ "placename=" . 
+						urlencode(
+							trim(
+								preg_replace("/[^A-Za-z0-9 ]/", '', 
+									str_replace ( 
+										"&#039;" , "" ,$this->getName()
+									)
+								)
+							)
+						)
 					];
 		return "maplink.php?" . implode( "&", $urlparms );
 	}
