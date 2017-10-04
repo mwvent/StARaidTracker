@@ -45,15 +45,15 @@ $lat = $gym["lat"];
 $lng = $gym["long"];
 $name = $gym["name"];
 
-// Generate URL
+// Generate URL...
 if ( isIOS() ) {
-	// For IOS
+	// ... for IOS
 	$parms = [ 
 		"ll=" . urlencode( $lat ) . "," . urlencode( $lng )
 	];
 	$url = "http://maps.apple.com/?" . implode("&", $parms);
 } else {
-	// Everything else
+	// ... for everything else
 	$parms = [ 
 		"q=" . urlencode( $lat ) . "," . urlencode( $lng )
 	];
@@ -66,6 +66,7 @@ $date = $date->format("ymd h:i:s");
 $logmsg = $date . " " . $_SERVER['REMOTE_ADDR'] . " " .
 			"sending user to " . $url . " for gym " . $_GET["placename"];
 error_log( $logmsg . PHP_EOL, 3, "/home/www/pogosta/findgym/api/data/rw/accesslog");
-//echo($url);
+
+// On your way happy PoGo player
 header('Location: ' . $url);
 die();
