@@ -2,7 +2,7 @@
   <head>
     <title>St.Albans PoGo Gym Search</title>
     <meta content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script>
 		// create a global urlParmas and a function to fill it with
@@ -25,11 +25,15 @@
 		// attempt to fetch a search from the server - uses q from querystring as search input
 		function doSearch() {
 			$('#results-list').empty();
+			$('#results-list').attr("class","results-area-loading");
 			searchTxt = urlParams["q"];
 			
 			if( searchTxt === undefined ) {
 				return;
 			}
+			
+			// we are about to do the callback show the spinner
+			$('#results-list').innerHTML = "<img src='media/loading.gif'>";
 			
 			$.getJSON( "api/", {
 					method: "findgymsbyname",
@@ -37,6 +41,7 @@
 				}, 
 				function( data ) {
 					$('#results-list').empty();
+					$('#results-list').attr("class","results-area");
 					// Check data.status exists
 					if( data.status === undefined ) {
 						$('#results-list').append("<font color='red'>Sorry, I could not talk to the server right now :-(</font>");
@@ -65,6 +70,7 @@
 					});
 				}
 			).fail( function(jqXHR, textStatus, errorThrown) { 
+				$('#results-list').attr("class","results-area");
 				$('#results-list').append("<font color='red'>Sorry, Could not communicate with server: " + textStatus + "</font>");
 			});
 		}
@@ -120,6 +126,7 @@
 		});
 	</script>
     <style>
+		html, body {margin: 0; height: 100%; overflow: hidden}
 		body {
 			background:url("media/overworld.svg");
 			background-size: cover;
@@ -214,11 +221,37 @@
 			max-width: 8%;
 		}
 		
-		#results-area {
+		.results-area {
 			top: 60px;
+			position: fixed;
+			width: 90%;
+			min-width: 90%;
+			height: calc(100% - 120px);
+			max-height: calc(100% - 120px);
+			min-height: calc(100% - 120px);
+			overflow-y: auto;
+		}
+		
+		.results-area-loading {
+			top: 60px;
+			position: fixed;
+			width: 90%;
+			min-width: 90%;
+			height: calc(100% - 120px);
+			max-height: calc(100% - 120px);
+			min-height: calc(100% - 120px);
+			overflow-y: auto;
+			background:url("media/loading.gif");
+			background-size: cover;
+		}
+		
+		#pagefooter {
 			position: absolute;
-			width: 100%;
-			min-width: 100%;
+			bottom: 0px;
+			height: 40px;
+			max-height: 40px;
+			min-height: 40px;
+			overflow: hidden;
 		}
     </style>
   </head>
@@ -227,9 +260,14 @@
 		<input id='searchbox-txt' class='textinput'/>
 		<span id='gobtn' class='btn'>GO</span>
 	  </form>
-	  <div id='results-area'>
+	  <div id='results-area' class='results-area'>
 		  <ul id='results-list'></ul>
 	  </div>
-	  
+	  <div id='pagefooter'>
+		  Missing gym or issues? Just message
+		  <a href='https://www.facebook.com/mwvent'>
+			Matthew Watts
+		  </a>
+	  </div>
   </body>
 </html>

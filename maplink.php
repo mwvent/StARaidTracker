@@ -17,7 +17,6 @@ function hasParm($keyName): bool {
 
 // check if an iphone/pad is being used
 function isIOS(): bool {
-	return false;
 	if(strstr($_SERVER['HTTP_USER_AGENT'],'iPhone')) {
 		return true;
 	}
@@ -39,23 +38,25 @@ if( sizeof( $gyms ) < 1 ) {
 	die("Cannot find " . $_GET["placename"]);
 }
 
-// nice neat vars
+// get url encoded values ready
 $gym = array_values($gyms)[0];
-$lat = $gym["lat"];
-$lng = $gym["long"];
-$name = $gym["name"];
+$lat = urlencode( $gym["lat"] );
+$lng = urlencode( $gym["long"] );
+$name = urlencode( $gym["name"] );
 
 // Generate URL...
 if ( isIOS() ) {
 	// ... for IOS
 	$parms = [ 
-		"ll=" . urlencode( $lat ) . "," . urlencode( $lng )
+		"daddr=" . $lat. "," . $lng,
+		"dirflg=d",
+		"t=h"
 	];
 	$url = "http://maps.apple.com/?" . implode("&", $parms);
 } else {
 	// ... for everything else
 	$parms = [ 
-		"q=" . urlencode( $lat ) . "," . urlencode( $lng )
+		"q=" . $lat . "," . $lng
 	];
 	$url = "http://maps.google.com/?" .  implode("&", $parms);
 }
