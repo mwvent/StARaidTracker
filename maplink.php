@@ -10,6 +10,7 @@ define('APPLIBDIR',APPROOTDIR . 'lib/');
 define('APPDATADIR',APPROOTDIR . 'data/');
 require(APPLIBDIR . "raiddata.php");
 
+
 // check a parameter has been supplied
 function hasParm($keyName): bool {
 	return isset( $_GET[$keyName] );
@@ -44,8 +45,31 @@ $lat = urlencode( $gym["lat"] );
 $lng = urlencode( $gym["long"] );
 $name = urlencode( $gym["name"] );
 
+// has a provider choice been given?
+$providerChoiceMade = hasParm("provider");
+
+// what type of action are we going to make ?
+// if none of the following two conditions are handled its going to be google
+$useApple = false;
+// if client is IOS and no provider choice has been made show a chooser
+if( (! $providerChoiceMade ) and isIOS() ) {
+	require("maplink-chooser.php");
+	chooserPage($gym);
+	$date = new DateTime();
+	$date = $date->format("ymd h:i:s");
+	$logmsg = $date . " " . $_SERVER['REMOTE_ADDR'] . " " . $_SERVER['HTTP_USER_AGENT'] . " " .
+			"showing user map choice page for gym " . $_GET["placename"];
+	error_log( $logmsg . PHP_EOL, 3, "/home/www/pogosta/findgym/api/data/rw/accesslog");
+
+	die();
+}
+// if provider choice var exists use that
+if( $providerChoiceMade ) {
+	$useApple = strtolower($_GET["provider"]) == "a";
+}
+
 // Generate URL...
-if ( isIOS() ) {
+if ( $useApple ) {
 	// ... for IOS
 	$parms = [ 
 		"daddr=" . $lat. "," . $lng,
@@ -64,7 +88,7 @@ if ( isIOS() ) {
 // debug+usage logging
 $date = new DateTime();
 $date = $date->format("ymd h:i:s");
-$logmsg = $date . " " . $_SERVER['REMOTE_ADDR'] . " " .
+$logmsg = $date . " " . $_SERVER['REMOTE_ADDR'] . " " . $_SERVER['HTTP_USER_AGENT'] . " " .
 			"sending user to " . $url . " for gym " . $_GET["placename"];
 error_log( $logmsg . PHP_EOL, 3, "/home/www/pogosta/findgym/api/data/rw/accesslog");
 
